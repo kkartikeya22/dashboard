@@ -30,7 +30,7 @@ export interface Artifact {
   id: string;
   title: string;
   renderArtifact: () => ReactNode;
-  [key: string]: any;
+  currentUrl?: string;
 }
 
 export interface Tab {
@@ -48,19 +48,19 @@ export const ItemType = {
 }; 
 
 export interface ArtifactProps {
-  renderArtifact: (artifact: any) => React.ReactNode;
+  renderArtifact: (artifact: Artifact) => React.ReactNode;
 }
 
 export interface ArtifactState {
   isCollapsed: boolean;
-  currentArtifact: any | null;
+  currentArtifact: Artifact | null;
   tabsHeight: number;
 } 
 
 export function Artifact({ renderArtifact }: ArtifactProps) {
-  const { artifact, setArtifact, activeComponent } = useWorkspace()
+  const { artifact, activeComponent } = useWorkspace()
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [currentArtifact, setCurrentArtifact] = React.useState<any | null>(null);
+  const [currentArtifact, setCurrentArtifact] = React.useState<Artifact | null>(null);
   const tabsRef = React.useRef<HTMLDivElement>(null);
   const [tabsHeight, setTabsHeight] = React.useState(0);
 
@@ -101,16 +101,17 @@ export function Artifact({ renderArtifact }: ArtifactProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <div className={cn(
-            "flex-shrink-0 rounded-lg relative",
+            "flex-shrink-0 relative",
             "transition-[width] duration-300 ease-in-out",
             "bg-gradient-to-br from-background via-secondary/20 to-primary/10",
             "border border-primary/20",
             "shadow-lg shadow-primary/5",
+            "rounded-2xl overflow-hidden",
             isCollapsed ? "w-10" : "w-[50vw] max-w-[50%]"
           )}>
             <ArtifactContent
               isCollapsed={isCollapsed}
-              artifact={artifact}
+              artifact={artifact as Artifact}
               currentArtifact={currentArtifact}
               tabsRef={tabsRef}
               renderArtifact={renderArtifact}
@@ -120,7 +121,7 @@ export function Artifact({ renderArtifact }: ArtifactProps) {
                 } else if (tab?.artifact) {
                   setCurrentArtifact(tab.artifact);
                 } else if (tab === undefined && artifact) {
-                  setCurrentArtifact(artifact);
+                  setCurrentArtifact(artifact as Artifact);
                 } else {
                   setCurrentArtifact(null);
                 }
@@ -133,7 +134,10 @@ export function Artifact({ renderArtifact }: ArtifactProps) {
             />
           </div>
         </TooltipTrigger>
-        <TooltipContent side="left" className="bg-secondary/90 text-secondary-foreground">
+        <TooltipContent 
+          side="left" 
+          className="bg-secondary/90 text-secondary-foreground rounded-lg"
+        >
           {isCollapsed ? "Expand artifact panel" : "Collapse artifact panel"}
         </TooltipContent>
       </Tooltip>
