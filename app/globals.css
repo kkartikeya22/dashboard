@@ -43,6 +43,11 @@ body {
     --sidebar-ring: 221.2 83.2% 53.3%;
     --sidebar-active: 217.2 91.2% 59.8%;
     --sidebar-active-foreground: 210 40% 98%;
+    /* New soothing colors */
+    --soothing-blue: 220 60% 95%;
+    --soothing-indigo: 230 60% 95%;
+    --soothing-purple: 270 60% 95%;
+    --soothing-lavender: 280 60% 95%;
   }
 
   .dark {
@@ -80,6 +85,11 @@ body {
     --sidebar-ring: 224.3 76.3% 48%;
     --sidebar-active: 217.2 91.2% 59.8%;
     --sidebar-active-foreground: 210 40% 98%;
+    /* Dark mode soothing colors */
+    --soothing-blue: 220 30% 20%;
+    --soothing-indigo: 230 30% 20%;
+    --soothing-purple: 270 30% 20%;
+    --soothing-lavender: 280 30% 20%;
   }
 }
 
@@ -129,25 +139,45 @@ body {
 }
 
 .thin-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--soothing-blue));
   border-radius: 3px;
+  transition: background-color 0.3s ease;
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background: #ddd;
+  background: hsl(var(--soothing-indigo));
   border-radius: 3px;
+  transition: background-color 0.3s ease;
 }
 
 .thin-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #ccc;
+  background: hsl(var(--soothing-purple));
 }
 
 @layer components {
   [data-sidebar="menu-button"][data-active="true"] {
-    @apply !bg-[hsl(var(--sidebar-primary)/0.15)] !text-[hsl(var(--sidebar-primary))];
+    @apply !bg-[hsl(var(--sidebar-primary)/0.15)] !text-[hsl(var(--sidebar-primary))] transition-all duration-300 ease-in-out;
   }
 
   [data-sidebar="menu-button"]:hover:not([data-active="true"]) {
-    @apply !bg-[hsl(var(--sidebar-accent))] !text-[hsl(var(--sidebar-foreground))];
+    @apply !bg-[hsl(var(--sidebar-accent))] !text-[hsl(var(--sidebar-foreground))] transition-all duration-300 ease-in-out;
+  }
+
+  /* New soothing hover animations */
+  .hover-soothing {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-soothing:hover {
+    @apply bg-[hsl(var(--soothing-lavender))] shadow-lg;
+    transform: translateY(-2px);
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.3);
   }
 }

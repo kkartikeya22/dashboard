@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useWorkspace } from "@/app/layout/Workspace/WorkspaceContext"
 
@@ -11,7 +12,7 @@ export function InvestigationGPTSuggestions({
   onQuestionClick 
 }: InvestigationGPTSuggestionsProps) {
   const { activeNavigation } = useWorkspace()
-
+  
   type GroupQuestions = {
     merchant: {
       investigation: string[];
@@ -28,48 +29,48 @@ export function InvestigationGPTSuggestions({
   const questionsByGroupAndItem: GroupQuestions = {
     merchant: {
       investigation: [
-        "What are the recent high-risk transactions?",
-        "Show me flagged merchants",
-        "Analyze transaction patterns",
-        "List suspicious activities",
-        "Summarize transaction volume trends"
+        "What are the recent investigation findings?",
+        "Show me high priority investigation cases",
+        "List unresolved investigations",
+        "Display investigation timeline",
+        "Summarize investigation outcomes"
       ],
       activity: [
-        "Show recent merchant activity patterns",
-        "List high-volume transactions",
-        "Display weekly activity summary",
-        "Show merchant category trends",
-        "Analyze peak transaction times"
+        "Show recent transaction patterns",
+        "What are the peak activity hours?",
+        "Display unusual activity alerts",
+        "List declined transactions",
+        "Analyze transaction volume trends"
       ],
       profile: [
-        "Show merchant risk profile",
-        "List historical compliance issues",
-        "Display merchant category details",
-        "Show business verification status",
-        "Analyze merchant location patterns"
+        "What is the merchant risk score?",
+        "Show merchant verification status",
+        "List registered business locations",
+        "Display compliance history",
+        "Summarize account status changes"
       ]
     },
     strategy: {
       rules: [
-        "Show triggered rule statistics",
-        "List most effective rules",
-        "Display rule violation patterns",
-        "Show rule performance metrics",
+        "Show active rule performance",
+        "What rules triggered most recently?",
+        "List rules by priority",
+        "Display rule effectiveness metrics",
         "Analyze false positive rates"
       ],
       models: [
-        "Show model performance metrics",
-        "List model prediction accuracy",
-        "Display model training data",
-        "Show feature importance analysis",
-        "Compare model versions"
+        "What is the current model accuracy?",
+        "Show model validation results",
+        "List feature importance scores",
+        "Display prediction confidence trends",
+        "Analyze model performance metrics"
       ],
       alerts: [
-        "Show recent alert patterns",
-        "List high-priority alerts",
-        "Display alert resolution times",
-        "Show alert category distribution",
-        "Analyze alert frequency trends"
+        "Show active alert summary",
+        "What are the critical alerts?",
+        "List alert response times",
+        "Display alert resolution rates",
+        "Analyze alert frequency patterns"
       ]
     }
   }
@@ -94,8 +95,12 @@ export function InvestigationGPTSuggestions({
           type="button"
           className={cn(
             "h-8 px-2.5 text-xs rounded-full whitespace-nowrap shrink-0",
-            "bg-gray-100 text-gray-700 hover:bg-gray-200",
-            "transition-colors duration-200"
+            "bg-gradient-to-r from-secondary/30 via-primary/20 to-secondary/30",
+            "text-foreground hover:text-primary-foreground",
+            "border border-primary/20 hover:border-primary/40",
+            "hover:bg-gradient-to-r hover:from-primary hover:via-primary/90 hover:to-primary",
+            "transition-all duration-200",
+            "shadow-sm shadow-primary/10"
           )}
           onClick={() => onQuestionClick(question)}
         >

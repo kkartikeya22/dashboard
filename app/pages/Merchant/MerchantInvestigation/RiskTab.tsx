@@ -14,19 +14,19 @@ interface RiskCategoryProps {
 }
 
 const RiskCategory: FC<RiskCategoryProps> = ({ title, score, indicators }) => (
-  <CustomCard className="p-4 space-y-3">
+  <CustomCard className="p-4 space-y-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
     <div className="space-y-2">
-      <h4 className="font-medium">{title}</h4>
+      <h4 className="font-medium text-gray-800 transition-colors duration-200 hover:text-blue-600">{title}</h4>
       <RiskIndicator score={score} />
     </div>
     <div className="space-y-2">
       {indicators.map((indicator, index) => (
-        <div key={index} className="flex items-center justify-between text-sm">
+        <div key={index} className="flex items-center justify-between text-sm transition-all duration-200 hover:bg-blue-50/50 p-1.5 rounded">
           <span className="text-gray-600">{indicator.label}</span>
-          <span className={`font-medium ${
-            indicator.severity === 'high' ? 'text-red-600' :
-            indicator.severity === 'medium' ? 'text-yellow-600' :
-            'text-green-600'
+          <span className={`font-medium transition-colors duration-200 ${
+            indicator.severity === 'high' ? 'text-rose-600 hover:text-rose-700' :
+            indicator.severity === 'medium' ? 'text-amber-600 hover:text-amber-700' :
+            'text-emerald-600 hover:text-emerald-700'
           }`}>
             {indicator.value}
           </span>
@@ -41,7 +41,7 @@ export const RiskTab: FC = () => {
     {
       title: 'Transaction Risk',
       score: 85,
-      icon: <Activity className="h-5 w-5 text-red-500" />,
+      icon: <Activity className="h-5 w-5 text-rose-500" />,
       indicators: [
         { label: 'High Value Transaction Rate', value: '45%', severity: 'high' as const },
         { label: 'Velocity Check Failures', value: '12', severity: 'medium' as const },
@@ -51,7 +51,7 @@ export const RiskTab: FC = () => {
     {
       title: 'Compliance Risk',
       score: 65,
-      icon: <Scale className="h-5 w-5 text-yellow-500" />,
+      icon: <Scale className="h-5 w-5 text-amber-500" />,
       indicators: [
         { label: 'KYC Status', value: 'Incomplete', severity: 'high' as const },
         { label: 'Document Verification', value: 'Pending', severity: 'medium' as const },
@@ -100,17 +100,17 @@ export const RiskTab: FC = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 bg-gradient-to-br from-gray-50 via-white to-blue-50 min-h-screen">
       {/* Overall Risk Score */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Overall Risk Assessment</h3>
-        <CustomCard className="p-4">
+        <h3 className="text-lg font-semibold text-gray-800">Overall Risk Assessment</h3>
+        <CustomCard className="p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] bg-gradient-to-br from-white via-rose-50/30 to-rose-50/50">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
-            <span className="font-medium">High Risk Merchant</span>
+            <AlertTriangle className="h-5 w-5 text-rose-500 animate-pulse" />
+            <span className="font-medium text-gray-800">High Risk Merchant</span>
           </div>
           <RiskIndicator score={82} />
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 transition-colors duration-200 hover:text-gray-800">
             Multiple risk factors identified across transaction patterns and compliance
           </p>
         </CustomCard>
@@ -118,7 +118,7 @@ export const RiskTab: FC = () => {
 
       {/* Risk Categories */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Risk Categories</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Risk Categories</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {riskCategories.map((category, index) => (
             <RiskCategory 
@@ -133,33 +133,33 @@ export const RiskTab: FC = () => {
 
       {/* Active Investigations */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Active Investigations</h3>
-        <CustomCard className="divide-y">
+        <h3 className="text-lg font-semibold text-gray-800">Active Investigations</h3>
+        <CustomCard className="divide-y transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
           {activeInvestigations.map((investigation) => (
-            <div key={investigation.id} className="p-4 space-y-2">
+            <div key={investigation.id} className="p-4 space-y-2 transition-all duration-200 hover:bg-blue-50/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className={`h-4 w-4 ${
-                    investigation.priority === 'High' ? 'text-red-500' : 'text-yellow-500'
+                  <AlertTriangle className={`h-4 w-4 transition-colors duration-200 ${
+                    investigation.priority === 'High' ? 'text-rose-500 animate-pulse' : 'text-amber-500'
                   }`} />
-                  <span className="font-medium">{investigation.title}</span>
+                  <span className="font-medium text-gray-800 transition-colors duration-200 hover:text-blue-600">{investigation.title}</span>
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 transition-colors duration-200 hover:text-gray-700">
                   {new Date(investigation.lastUpdated).toLocaleDateString()}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
+                <div className="transition-all duration-200 hover:bg-blue-100/50 p-1 rounded">
                   <span className="text-gray-500">Status:</span>
-                  <span className="ml-1">{investigation.status}</span>
+                  <span className="ml-1 text-gray-800">{investigation.status}</span>
                 </div>
-                <div>
+                <div className="transition-all duration-200 hover:bg-blue-100/50 p-1 rounded">
                   <span className="text-gray-500">Priority:</span>
-                  <span className="ml-1">{investigation.priority}</span>
+                  <span className="ml-1 text-gray-800">{investigation.priority}</span>
                 </div>
-                <div>
+                <div className="transition-all duration-200 hover:bg-blue-100/50 p-1 rounded">
                   <span className="text-gray-500">Assignee:</span>
-                  <span className="ml-1">{investigation.assignee}</span>
+                  <span className="ml-1 text-gray-800">{investigation.assignee}</span>
                 </div>
               </div>
             </div>
@@ -168,4 +168,4 @@ export const RiskTab: FC = () => {
       </div>
     </div>
   );
-}; 
+};

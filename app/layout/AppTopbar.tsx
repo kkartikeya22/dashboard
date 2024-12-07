@@ -7,14 +7,14 @@ export function AppTopbar() {
   const { activeNavigation } = useWorkspace()
 
   return (
-    <header className="border-b bg-white h-14 flex items-center px-6 justify-between">
+    <header className="border-b border-indigo-100 bg-white/90 backdrop-blur-sm h-14 flex items-center px-6 justify-between">
       <div className="flex items-center gap-4">
         <h1 className="flex items-center text-sm font-medium">
-          <span className="text-muted-foreground hover:text-foreground transition-colors">
+          <span className="text-indigo-600/70 hover:text-indigo-800 transition-colors">
             {activeNavigation?.group}
           </span>
-          <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
-          <span className="font-semibold text-foreground">
+          <ChevronRight className="mx-1 h-4 w-4 text-indigo-400" />
+          <span className="font-semibold text-indigo-900">
             {activeNavigation?.item}
           </span>
         </h1>

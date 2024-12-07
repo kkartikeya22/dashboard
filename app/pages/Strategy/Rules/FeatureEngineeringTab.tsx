@@ -5,39 +5,60 @@ import { CustomSelect } from '@/components/custom/CustomSelect';
 import { Button } from '@/components/custom/CustomButton';
 import { CustomInput } from '@/components/custom/CustomInput';
 import { Editor } from '@/components/custom/CustomEditor';
-import { Play, Code2, BarChart2, Database } from 'lucide-react';
+import { Play, Code2, BarChart2, Database, Wand2, Sparkles } from 'lucide-react';
 import { FeaturePerformance } from './RulesPage';
 import { FeaturePerformanceArtifact } from './FeaturePerformanceArtifact';
 
 type FeatureType = 'numerical' | 'categorical';
 type Language = 'python' | 'sql';
 
-const samplePythonCode = `# Example: Calculate days since last transaction
-def calculate_days_since_last_txn(df):
-    df['last_txn_date'] = pd.to_datetime(df['txn_date'])
-    df['current_date'] = pd.Timestamp.now()
-    df['days_since_last_txn'] = (
-        df['current_date'] - df['last_txn_date']
-    ).dt.days
-    return df['days_since_last_txn']`;
+const samplePythonCode = `# Calculate risk score based on transaction patterns
+def calculate_risk_score(df):
+    # Convert transaction dates to datetime
+    df['txn_date'] = pd.to_datetime(df['txn_date'])
+    
+    # Calculate transaction velocity
+    df['txn_velocity'] = df.groupby('user_id')['txn_date'].transform(
+        lambda x: x.diff().dt.total_seconds().fillna(0)
+    )
+    
+    # Calculate amount percentiles
+    df['amount_percentile'] = df.groupby('merchant_category')['amount'].transform(
+        lambda x: pd.qcut(x, q=100, labels=False, duplicates='drop')
+    )
+    
+    # Generate risk score
+    df['risk_score'] = (
+        0.4 * (df['txn_velocity'] < 300).astype(int) +
+        0.3 * (df['amount_percentile'] > 90).astype(int) +
+        0.3 * (df['failed_auth_count'] > 2).astype(int)
+    )
+    
+    return df['risk_score']`;
 
-const sampleSqlCode = `-- Example: Calculate transaction amount percentile
-WITH txn_stats AS (
+const sampleSqlCode = `-- Calculate merchant risk indicators
+WITH merchant_metrics AS (
   SELECT 
     merchant_id,
-    amount,
-    PERCENT_RANK() OVER (
-      PARTITION BY merchant_category 
-      ORDER BY amount
-    ) as amt_percentile
-  FROM transactions
-  WHERE date >= DATEADD(day, -30, GETDATE())
+    COUNT(DISTINCT user_id) as unique_users,
+    AVG(amount) as avg_txn_amount,
+    STDDEV(amount) as txn_amount_std,
+    COUNT(CASE WHEN status = 'declined' THEN 1 END) * 100.0 / 
+      NULLIF(COUNT(*), 0) as decline_rate,
+    COUNT(CASE WHEN is_foreign_card = 1 THEN 1 END) * 100.0 / 
+      NULLIF(COUNT(*), 0) as foreign_card_rate
+  FROM transactions 
+  WHERE transaction_date >= DATEADD(month, -3, GETDATE())
+  GROUP BY merchant_id
 )
-SELECT 
-  merchant_id,
-  MAX(amt_percentile) as max_amt_percentile
-FROM txn_stats
-GROUP BY merchant_id`;
+SELECT
+  m.*,
+  CASE 
+    WHEN decline_rate > 15 AND foreign_card_rate > 40 THEN 'High'
+    WHEN decline_rate > 10 OR foreign_card_rate > 25 THEN 'Medium'
+    ELSE 'Low'
+  END as risk_category
+FROM merchant_metrics m`;
 
 export const FeatureEngineeringTab: FC = () => {
   const { setArtifact } = useWorkspace();
@@ -52,12 +73,14 @@ export const FeatureEngineeringTab: FC = () => {
   };
 
   const generateSamplePerformanceData = (): FeaturePerformance[] => [
-    { bucket: '0-10', accountCount: 1200, fraudCount: 24, fraudRate: 0.02 },
-    { bucket: '10-20', accountCount: 2300, fraudCount: 69, fraudRate: 0.03 },
-    { bucket: '20-30', accountCount: 3100, fraudCount: 155, fraudRate: 0.05 },
-    { bucket: '30-40', accountCount: 2800, fraudCount: 224, fraudRate: 0.08 },
-    { bucket: '40-50', accountCount: 1900, fraudCount: 209, fraudRate: 0.11 },
-    { bucket: '50+', accountCount: 1100, fraudCount: 187, fraudRate: 0.17 },
+    { bucket: '0-20', accountCount: 15243, fraudCount: 152, fraudRate: 0.010 },
+    { bucket: '20-40', accountCount: 28391, fraudCount: 426, fraudRate: 0.015 },
+    { bucket: '40-60', accountCount: 31052, fraudCount: 776, fraudRate: 0.025 },
+    { bucket: '60-80', accountCount: 25634, fraudCount: 1025, fraudRate: 0.040 },
+    { bucket: '80-90', accountCount: 12845, fraudCount: 771, fraudRate: 0.060 },
+    { bucket: '90-95', accountCount: 6422, fraudCount: 514, fraudRate: 0.080 },
+    { bucket: '95-99', accountCount: 5137, fraudCount: 565, fraudRate: 0.110 },
+    { bucket: '99-100', accountCount: 1284, fraudCount: 218, fraudRate: 0.170 },
   ];
 
   const handleAnalyzeFeature = () => {
@@ -77,9 +100,16 @@ export const FeatureEngineeringTab: FC = () => {
   };
 
   return (
-    <div className="w-full max-w-full overflow-hidden">
-      <div className="space-y-4">
-        <div className="grid gap-4 max-w-2xl">
+    <div className="w-full max-w-full overflow-hidden p-6 bg-gradient-to-br from-blue-50/30 via-purple-50/30 to-pink-50/30">
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Wand2 className="w-6 h-6 text-indigo-600 animate-pulse" />
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Feature Engineering Studio
+          </h2>
+        </div>
+
+        <div className="grid gap-6 max-w-3xl bg-white/50 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:bg-white/60">
           <div className="flex gap-4">
             <CustomSelect
               value={language}
@@ -88,6 +118,7 @@ export const FeatureEngineeringTab: FC = () => {
                 { label: 'Python', value: 'python' },
                 { label: 'SQL', value: 'sql' }
               ]}
+              className="transition-all duration-300 hover:ring-2 hover:ring-indigo-200"
               size="sm"
             />
             <CustomSelect
@@ -97,6 +128,7 @@ export const FeatureEngineeringTab: FC = () => {
                 { label: 'Numerical', value: 'numerical' },
                 { label: 'Categorical', value: 'categorical' }
               ]}
+              className="transition-all duration-300 hover:ring-2 hover:ring-purple-200"
               size="sm"
             />
           </div>
@@ -105,19 +137,26 @@ export const FeatureEngineeringTab: FC = () => {
             label="Feature Name"
             value={featureName}
             onChange={(e) => setFeatureName(e.target.value)}
+            className="transition-all duration-300 hover:ring-2 hover:ring-blue-200"
           />
           
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden rounded-lg border border-indigo-100 transition-all duration-300 hover:border-indigo-300 hover:shadow-md">
             <Editor
               language={language}
               value={code}
               onChange={(value) => setCode(value || '')}
-              className="min-h-[300px] w-full"
+              className="min-h-[400px] w-full"
             />
           </div>
           
-          <Button onClick={handleAnalyzeFeature}>
-            Analyze Feature
+          <Button 
+            onClick={handleAnalyzeFeature}
+            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              <span>Analyze Feature</span>
+            </div>
           </Button>
         </div>
       </div>

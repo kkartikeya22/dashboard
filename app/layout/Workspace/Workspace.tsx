@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils"
 import { useState } from 'react';
 import { WorkspaceContent } from './WorkspaceContent';
 import { WorkspaceTabBar } from './WorkspaceTabBar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Tab {
   id: string;
   label: string;
   content: React.ReactNode;
+  tooltip?: string;
 }
 
 interface WorkspaceProps {
@@ -28,18 +30,20 @@ export function Workspace({ children, className, tabs }: WorkspaceProps) {
   }
 
   return (
-    <div className={cn("bg-white rounded-lg overflow-hidden flex flex-col h-full", className)}>
-      <div className="flex flex-col h-full w-full">
-        <WorkspaceTabBar 
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-        
-        <WorkspaceContent 
-          content={activeTab ? tabs.find(tab => tab.id === activeTab)?.content : null}
-        />
+    <TooltipProvider>
+      <div className={cn("bg-white rounded-lg overflow-hidden flex flex-col h-full", className)}>
+        <div className="flex flex-col h-full w-full">
+          <WorkspaceTabBar 
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+          
+          <WorkspaceContent 
+            content={activeTab ? tabs.find(tab => tab.id === activeTab)?.content : null}
+          />
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

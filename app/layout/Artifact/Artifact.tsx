@@ -4,6 +4,12 @@ import { cn } from "@/lib/utils"
 import { CollapseButton } from "./ArtifactCollapseButton"
 import { ArtifactContent } from "./ArtifactContent"
 import { ReactNode } from "react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 /**
  * Core Artifact Component
@@ -91,34 +97,46 @@ export function Artifact({ renderArtifact }: ArtifactProps) {
   }, []);
 
   return (
-    <div className={cn(
-      "flex-shrink-0 bg-white rounded-lg relative",
-      "transition-[width] duration-300 ease-in-out",
-      isCollapsed ? "w-10" : "w-[50vw] max-w-[50%]"
-    )}>
-      <ArtifactContent
-        isCollapsed={isCollapsed}
-        artifact={artifact}
-        currentArtifact={currentArtifact}
-        tabsRef={tabsRef}
-        renderArtifact={renderArtifact}
-        onTabChange={(tab) => {
-          if (tab?.isBlank) {
-            setCurrentArtifact(null);
-          } else if (tab?.artifact) {
-            setCurrentArtifact(tab.artifact);
-          } else if (tab === undefined && artifact) {
-            setCurrentArtifact(artifact);
-          } else {
-            setCurrentArtifact(null);
-          }
-        }}
-      />
-      <CollapseButton
-        isCollapsed={isCollapsed}
-        tabsHeight={tabsHeight}
-        onToggle={() => setIsCollapsed(!isCollapsed)}
-      />
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={cn(
+            "flex-shrink-0 rounded-lg relative",
+            "transition-[width] duration-300 ease-in-out",
+            "bg-gradient-to-br from-background via-secondary/20 to-primary/10",
+            "border border-primary/20",
+            "shadow-lg shadow-primary/5",
+            isCollapsed ? "w-10" : "w-[50vw] max-w-[50%]"
+          )}>
+            <ArtifactContent
+              isCollapsed={isCollapsed}
+              artifact={artifact}
+              currentArtifact={currentArtifact}
+              tabsRef={tabsRef}
+              renderArtifact={renderArtifact}
+              onTabChange={(tab) => {
+                if (tab?.isBlank) {
+                  setCurrentArtifact(null);
+                } else if (tab?.artifact) {
+                  setCurrentArtifact(tab.artifact);
+                } else if (tab === undefined && artifact) {
+                  setCurrentArtifact(artifact);
+                } else {
+                  setCurrentArtifact(null);
+                }
+              }}
+            />
+            <CollapseButton
+              isCollapsed={isCollapsed}
+              tabsHeight={tabsHeight}
+              onToggle={() => setIsCollapsed(!isCollapsed)}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="bg-secondary/90 text-secondary-foreground">
+          {isCollapsed ? "Expand artifact panel" : "Collapse artifact panel"}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }

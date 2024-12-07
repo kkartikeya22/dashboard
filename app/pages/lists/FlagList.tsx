@@ -21,25 +21,37 @@ const FlagItem = ({ flag }: FlagItemProps) => {
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           color: 'red' as const,
-          text: 'Critical'
+          text: 'Critical',
+          bgColor: 'bg-red-50',
+          hoverBgColor: 'hover:bg-red-100',
+          borderColor: 'border-red-200'
         };
       case 'high':
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           color: 'orange' as const,
-          text: 'High'
+          text: 'High',
+          bgColor: 'bg-orange-50',
+          hoverBgColor: 'hover:bg-orange-100',
+          borderColor: 'border-orange-200'
         };
       case 'medium':
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           color: 'yellow' as const,
-          text: 'Medium'
+          text: 'Medium',
+          bgColor: 'bg-yellow-50',
+          hoverBgColor: 'hover:bg-yellow-100',
+          borderColor: 'border-yellow-200'
         };
       default:
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           color: 'gray' as const,
-          text: 'Low'
+          text: 'Low',
+          bgColor: 'bg-gray-50',
+          hoverBgColor: 'hover:bg-gray-100',
+          borderColor: 'border-gray-200'
         };
     }
   };
@@ -47,7 +59,7 @@ const FlagItem = ({ flag }: FlagItemProps) => {
   const config = getSeverityConfig(flag.severity);
 
   return (
-    <div className="flex items-center gap-3 p-2 rounded-md">
+    <div className={`flex items-center gap-3 p-3 rounded-lg border ${config.borderColor} ${config.bgColor} ${config.hoverBgColor} transition-all duration-200 ease-in-out transform hover:scale-[1.01] hover:shadow-sm`}>
       <BubbleTag
         hasOutsideIcon
         icon={config.icon}
@@ -56,7 +68,7 @@ const FlagItem = ({ flag }: FlagItemProps) => {
       />
       <div className="flex-grow min-w-0">
         <div className="flex justify-between items-center">
-          <p className="text-sm text-gray-900">{flag.text}</p>
+          <p className="text-sm font-medium text-gray-900 hover:text-gray-700 transition-colors duration-200">{flag.text}</p>
           <p className="text-xs text-gray-500">{formatTimestamp(flag.timestamp, 'relative')}</p>
         </div>
       </div>
@@ -65,34 +77,52 @@ const FlagItem = ({ flag }: FlagItemProps) => {
 };
 
 const FlagArtifact: FC<FlagItemProps> = ({ flag }) => {
-  const getSeverityColor = (severity: string) => {
+  const getSeverityConfig = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return 'text-red-700';
+        return {
+          color: 'text-red-700',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200'
+        };
       case 'high':
-        return 'text-orange-700';
+        return {
+          color: 'text-orange-700',
+          bgColor: 'bg-orange-50',
+          borderColor: 'border-orange-200'
+        };
       case 'medium':
-        return 'text-yellow-700';
+        return {
+          color: 'text-yellow-700',
+          bgColor: 'bg-yellow-50',
+          borderColor: 'border-yellow-200'
+        };
       default:
-        return 'text-gray-700';
+        return {
+          color: 'text-gray-700',
+          bgColor: 'bg-gray-50',
+          borderColor: 'border-gray-200'
+        };
     }
   };
 
+  const config = getSeverityConfig(flag.severity);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <h2 className="text-xl font-semibold">Flag Details</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Flag Details</h2>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm text-gray-500">Severity</p>
-          <p className={`text-sm capitalize ${getSeverityColor(flag.severity)}`}>
+      <div className={`grid grid-cols-2 gap-6 p-6 rounded-xl border ${config.borderColor} ${config.bgColor}`}>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-gray-500">Severity</p>
+          <p className={`text-sm font-semibold capitalize ${config.color}`}>
             {flag.severity}
           </p>
         </div>
-        <div>
-          <p className="text-sm text-gray-500">Description</p>
-          <p className="text-sm">{flag.text}</p>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-gray-500">Description</p>
+          <p className="text-sm text-gray-900">{flag.text}</p>
         </div>
       </div>
     </div>
@@ -101,19 +131,19 @@ const FlagArtifact: FC<FlagItemProps> = ({ flag }) => {
 
 const flagData = {
   transactions: [
-    { severity: 'critical', text: '80% transactions between 1-4 AM', timestamp: '2024-03-15T14:30:00' },
-    { severity: 'critical', text: 'Average transaction (₹70k) inconsistent with business', timestamp: '2024-03-15T12:15:00' },
-    { severity: 'high', text: '80% transaction concentration with same customers', timestamp: '2024-03-15T10:45:00' },
+    { severity: 'critical', text: 'Unusual high-value transactions detected outside business hours (1-4 AM)', timestamp: '2024-03-15T14:30:00' },
+    { severity: 'critical', text: 'Transaction volume (₹70k avg) significantly exceeds business profile', timestamp: '2024-03-15T12:15:00' },
+    { severity: 'high', text: 'Suspicious concentration: 80% transactions with repeat counterparties', timestamp: '2024-03-15T10:45:00' },
   ],
   compliance: [
-    { severity: 'critical', text: 'No GST despite ₹25 Cr processing', timestamp: '2024-03-15T09:30:00' },
-    { severity: 'high', text: 'Revenue mismatch: MCA vs Actual', timestamp: '2024-03-15T08:15:00' },
-    { severity: 'high', text: 'Missing EPFO registration', timestamp: '2024-03-15T07:45:00' },
+    { severity: 'critical', text: 'Missing GST registration despite ₹25 Cr annual processing volume', timestamp: '2024-03-15T09:30:00' },
+    { severity: 'high', text: 'Significant revenue discrepancy between MCA filings and actual processing', timestamp: '2024-03-15T08:15:00' },
+    { severity: 'high', text: 'Non-compliance: Missing mandatory EPFO registration for business size', timestamp: '2024-03-15T07:45:00' },
   ],
   network: [
-    { severity: 'high', text: 'Circular flow patterns detected', timestamp: '2024-03-14T23:30:00' },
-    { severity: 'medium', text: 'Device ID linked to 50% transactions', timestamp: '2024-03-14T22:15:00' },
-    { severity: 'medium', text: 'Connected to other flagged accounts', timestamp: '2024-03-14T21:45:00' },
+    { severity: 'high', text: 'Complex circular transaction patterns identified across multiple accounts', timestamp: '2024-03-14T23:30:00' },
+    { severity: 'medium', text: 'Single device ID associated with 50% of total transaction volume', timestamp: '2024-03-14T22:15:00' },
+    { severity: 'medium', text: 'Network analysis reveals connections to previously flagged entities', timestamp: '2024-03-14T21:45:00' },
   ]
 };
 
@@ -133,7 +163,7 @@ export const FlagList = ({ openAccordions, setOpenAccordions }: FlagListProps) =
     });
   };
 
-    const getSeverityConfig = (severity: string) => {
+  const getSeverityConfig = (severity: string) => {
     switch (severity) {
       case 'critical':
         return {

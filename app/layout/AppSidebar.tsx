@@ -15,8 +15,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import {
-  LineChart,
-  Sparkles,
   Footprints,
   Microscope,
   ChevronsLeft,
@@ -38,7 +36,18 @@ import AlertsPage from "../pages/Strategy/AlertsPage"
 // Dynamically import components with no SSR
 const InvestigationInsights = dynamic(() => import('@/app/pages/Merchant/MerchantInvestigation/InvestigationInsights'), { ssr: false })
 
-const sidebarGroups = [
+interface SidebarItem {
+  label: string;
+  component: React.ComponentType;
+  icon: React.ComponentType;
+}
+
+interface SidebarGroup {
+  label: string;
+  items: SidebarItem[];
+}
+
+const sidebarGroups: SidebarGroup[] = [
   {
     label: "Merchant", 
     items: [
@@ -84,6 +93,17 @@ const sidebarGroups = [
 const SidebarContents = () => {
   const { setActiveComponent, setActiveNavigation, activeNavigation } = useWorkspace()
   const { state } = useSidebar()
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 767)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   React.useEffect(() => {
     const defaultGroup = sidebarGroups.find(g => g.label === "Strategy")
@@ -94,20 +114,28 @@ const SidebarContents = () => {
     }
   }, [])
 
-  const handleItemClick = React.useCallback((group: string, item: any) => {
-    if ('component' in item) {
-      setActiveComponent(() => item.component)
-      setActiveNavigation({ group, item: item.label })
-    }
+  const handleItemClick = React.useCallback((group: string, item: SidebarItem) => {
+    setActiveComponent(() => item.component)
+    setActiveNavigation({ group, item: item.label })
   }, [setActiveComponent, setActiveNavigation])
 
   return (
-    <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="h-14 relative">
+    <Sidebar 
+      variant="sidebar" 
+      collapsible="icon"
+      className={cn(
+        "h-full",
+        "transition-all duration-300 ease-in-out",
+        "bg-gradient-to-b from-white to-indigo-50/30",
+        isMobile ? "w-16" : "w-64",
+        state === "collapsed" && "w-16"
+      )}
+    >
+      <SidebarHeader className="h-14 relative bg-white/80 backdrop-blur-sm border-b border-indigo-100">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className={cn(
             "transition-all duration-200",
-            "group-data-[collapsible=icon]:opacity-0"
+            state === "collapsed" ? "opacity-0" : "opacity-100"
           )}>
             <Image
               src="/logo.png"
@@ -120,7 +148,7 @@ const SidebarContents = () => {
           </div>
         </div>
         <div className="absolute right-2 top-1/2 -translate-y-1/2">
-          <SidebarTrigger>
+          <SidebarTrigger className="text-indigo-600 hover:text-indigo-800 transition-colors">
             {state === "collapsed" ? (
               <ChevronsRight className="h-4 w-4" />
             ) : (
@@ -129,11 +157,11 @@ const SidebarContents = () => {
           </SidebarTrigger>
         </div>
       </SidebarHeader>
-      <SidebarSeparator />
+      <SidebarSeparator className="bg-indigo-100" />
       <SidebarContentRoot>
         {sidebarGroups.map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-indigo-900/70 font-medium">{group.label}</SidebarGroupLabel>
             {group.items.map((item) => (
               <SidebarMenuButton
                 key={item.label}
@@ -141,6 +169,11 @@ const SidebarContents = () => {
                 tooltip={item.label}
                 onClick={() => handleItemClick(group.label, item)}
                 isActive={activeNavigation?.group === group.label && activeNavigation?.item === item.label}
+                className={cn(
+                  "text-indigo-700 hover:bg-indigo-100/50",
+                  activeNavigation?.group === group.label && activeNavigation?.item === item.label && 
+                  "bg-indigo-100 text-indigo-900 hover:bg-indigo-200/70"
+                )}
               >
                 {item.label}
               </SidebarMenuButton>
@@ -153,8 +186,14 @@ const SidebarContents = () => {
 }
 
 export function AppSidebar() {
+  const [defaultOpen, setDefaultOpen] = React.useState(true)
+
+  React.useEffect(() => {
+    setDefaultOpen(window.innerWidth > 767)
+  }, [])
+
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <SidebarContents />
     </SidebarProvider>
   )

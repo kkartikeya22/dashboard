@@ -13,8 +13,8 @@ const geistSans = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Your application description",
+  title: "Risk Management Dashboard",
+  description: "Enterprise fraud detection and risk management platform for merchants",
 }
 
 export default function RootLayout({
@@ -24,14 +24,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={geistSans.variable}>
+      <body className={`${geistSans.variable} bg-indigo-50/30`}>
         <Providers>
-          <div className="flex h-screen">
+          <div className="flex h-screen bg-gradient-to-br from-indigo-50/50 to-white">
             <AppSidebar />
             <div className="flex flex-col flex-1">
               <AppTopbar />
               <AppContent>
-                {children}
+                <div className="p-6 h-full">
+                  {children}
+                </div>
               </AppContent>
             </div>
           </div>

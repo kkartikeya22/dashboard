@@ -11,19 +11,22 @@ interface WebsiteMetricProps {
   };
 }
 
-const WebsiteMetric: FC<WebsiteMetricProps> = ({ label, value, trend }) => (
-  <div>
-    <p className="text-sm text-gray-500">{label}</p>
-    <p className="text-xl font-semibold">{value}</p>
-    {trend && (
-      <p className={`text-xs ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-        {trend.value}
-      </p>
-    )}
-  </div>
-);
+interface WebsiteMetrics {
+  domain: string;
+  age: string;
+  traffic: {
+    monthly: string;
+    trend: {
+      value: string;
+      isPositive: boolean;
+    };
+  };
+  trustScore: string;
+  securityStatus: string;
+  lastUpdated: string;
+}
 
-interface ReviewSourceProps {
+interface ReviewSourceData {
   platform: string;
   icon: React.ReactNode;
   rating: number;
@@ -35,36 +38,67 @@ interface ReviewSourceProps {
   };
 }
 
-const ReviewSource: FC<ReviewSourceProps> = ({ platform, icon, rating, totalReviews, sentiment }) => (
-  <CustomCard className="p-4 space-y-3">
+interface SocialPlatform {
+  platform: string;
+  icon: React.ReactNode;
+  metrics: Array<{
+    label: string;
+    value: string;
+  }>;
+}
+
+interface RecentMention {
+  source: string;
+  title: string;
+  date: string;
+  sentiment: 'positive' | 'neutral' | 'negative';
+  snippet: string;
+}
+
+const WebsiteMetric: FC<WebsiteMetricProps> = ({ label, value, trend }) => (
+  <div className="transition-all duration-300 hover:scale-105 p-4 rounded-lg bg-gradient-to-br from-white to-blue-50">
+    <p className="text-sm text-gray-500">{label}</p>
+    <p className="text-xl font-semibold text-gray-800">{value}</p>
+    {trend && (
+      <p className={`text-xs ${trend.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+        {trend.value}
+      </p>
+    )}
+  </div>
+);
+
+const ReviewSource: FC<ReviewSourceData> = ({ platform, icon, rating, totalReviews, sentiment }) => (
+  <CustomCard className="p-4 space-y-3 transition-all duration-300 hover:shadow-lg hover:border-blue-200 bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        {icon}
-        <span className="font-medium">{platform}</span>
+        <div className="transition-transform duration-200 hover:scale-110">
+          {icon}
+        </div>
+        <span className="font-medium text-gray-800">{platform}</span>
       </div>
       <div className="flex items-center gap-1">
-        <Star className="h-4 w-4 text-yellow-400 fill-current" />
-        <span className="font-medium">{rating.toFixed(1)}</span>
+        <Star className="h-4 w-4 text-amber-400 fill-current" />
+        <span className="font-medium text-gray-800">{rating.toFixed(1)}</span>
         <span className="text-sm text-gray-500">({totalReviews})</span>
       </div>
     </div>
     <div className="space-y-2">
       <div className="flex gap-2 text-sm">
-        <span className="text-green-600">{sentiment.positive}% Positive</span>
-        <span className="text-gray-600">{sentiment.neutral}% Neutral</span>
-        <span className="text-red-600">{sentiment.negative}% Negative</span>
+        <span className="text-emerald-600">{sentiment.positive}% Positive</span>
+        <span className="text-slate-600">{sentiment.neutral}% Neutral</span>
+        <span className="text-rose-600">{sentiment.negative}% Negative</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden flex">
-        <div className="bg-green-500 h-full" style={{ width: `${sentiment.positive}%` }} />
-        <div className="bg-gray-300 h-full" style={{ width: `${sentiment.neutral}%` }} />
-        <div className="bg-red-500 h-full" style={{ width: `${sentiment.negative}%` }} />
+      <div className="h-2 bg-gray-100 rounded-full overflow-hidden flex transition-all duration-300">
+        <div className="bg-emerald-500 h-full transition-all duration-500 ease-in-out" style={{ width: `${sentiment.positive}%` }} />
+        <div className="bg-slate-300 h-full transition-all duration-500 ease-in-out" style={{ width: `${sentiment.neutral}%` }} />
+        <div className="bg-rose-500 h-full transition-all duration-500 ease-in-out" style={{ width: `${sentiment.negative}%` }} />
       </div>
     </div>
   </CustomCard>
 );
 
 export const DigitalFootprintTab: FC = () => {
-  const websiteMetrics = {
+  const websiteMetrics: WebsiteMetrics = {
     domain: 'techserve.com',
     age: '3 years',
     traffic: {
@@ -76,7 +110,7 @@ export const DigitalFootprintTab: FC = () => {
     lastUpdated: '2 days ago'
   };
 
-  const reviewSources = [
+  const reviewSources: ReviewSourceData[] = [
     {
       platform: 'Google Reviews',
       icon: <Globe className="h-5 w-5 text-blue-500" />,
@@ -93,7 +127,7 @@ export const DigitalFootprintTab: FC = () => {
     }
   ];
 
-  const socialPresence = [
+  const socialPresence: SocialPlatform[] = [
     {
       platform: 'LinkedIn',
       icon: <Linkedin className="h-5 w-5 text-blue-600" />,
@@ -114,7 +148,7 @@ export const DigitalFootprintTab: FC = () => {
     }
   ];
 
-  const recentMentions = [
+  const recentMentions: RecentMention[] = [
     {
       source: 'Tech News Blog',
       title: 'Top 10 Emerging FinTech Solutions',
@@ -132,14 +166,14 @@ export const DigitalFootprintTab: FC = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 bg-gradient-to-br from-gray-50 via-white to-blue-50">
       {/* Website Analysis */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Website Analysis</h3>
-        <CustomCard className="p-4">
+        <h3 className="text-lg font-semibold text-gray-800">Website Analysis</h3>
+        <CustomCard className="p-4 transition-all duration-300 hover:shadow-lg hover:border-blue-200 bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
           <div className="flex items-center gap-2 mb-4">
-            <Globe className="h-5 w-5 text-blue-500" />
-            <span className="font-medium">{websiteMetrics.domain}</span>
+            <Globe className="h-5 w-5 text-blue-500 transition-transform duration-200 hover:scale-110" />
+            <span className="font-medium text-gray-800">{websiteMetrics.domain}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <WebsiteMetric label="Domain Age" value={websiteMetrics.age} />
@@ -156,7 +190,7 @@ export const DigitalFootprintTab: FC = () => {
 
       {/* Reviews & Ratings */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Reviews & Ratings</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Reviews & Ratings</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {reviewSources.map((source, index) => (
             <ReviewSource key={index} {...source} />
@@ -166,19 +200,21 @@ export const DigitalFootprintTab: FC = () => {
 
       {/* Social Media Presence */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Social Media Presence</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Social Media Presence</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {socialPresence.map((platform, index) => (
-            <CustomCard key={index} className="p-4">
+            <CustomCard key={index} className="p-4 transition-all duration-300 hover:shadow-lg hover:border-blue-200 bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
               <div className="flex items-center gap-2 mb-3">
-                {platform.icon}
-                <span className="font-medium">{platform.platform}</span>
+                <div className="transition-transform duration-200 hover:scale-110">
+                  {platform.icon}
+                </div>
+                <span className="font-medium text-gray-800">{platform.platform}</span>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {platform.metrics.map((metric, idx) => (
-                  <div key={idx}>
+                  <div key={idx} className="transition-all duration-300 hover:scale-105 p-2 rounded-lg bg-white/50">
                     <p className="text-sm text-gray-500">{metric.label}</p>
-                    <p className="font-medium">{metric.value}</p>
+                    <p className="font-medium text-gray-800">{metric.value}</p>
                   </div>
                 ))}
               </div>
@@ -189,26 +225,26 @@ export const DigitalFootprintTab: FC = () => {
 
       {/* Recent Mentions */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Recent Mentions</h3>
-        <CustomCard className="divide-y">
+        <h3 className="text-lg font-semibold text-gray-800">Recent Mentions</h3>
+        <CustomCard className="divide-y divide-gray-100 bg-gradient-to-br from-white via-blue-50/30 to-blue-50/50">
           {recentMentions.map((mention, index) => (
-            <div key={index} className="p-4">
+            <div key={index} className="p-4 transition-all duration-300 hover:bg-blue-50/50">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Newspaper className="h-4 w-4 text-gray-400" />
-                  <span className="font-medium">{mention.source}</span>
+                  <Newspaper className="h-4 w-4 text-blue-400 transition-transform duration-200 hover:scale-110" />
+                  <span className="font-medium text-gray-800">{mention.source}</span>
                 </div>
                 <span className="text-sm text-gray-500">
                   {new Date(mention.date).toLocaleDateString()}
                 </span>
               </div>
-              <p className="font-medium mb-1">{mention.title}</p>
+              <p className="font-medium mb-1 text-gray-800">{mention.title}</p>
               <p className="text-sm text-gray-600">{mention.snippet}</p>
               <div className="flex items-center gap-1 mt-2">
-                <div className={`h-2 w-2 rounded-full ${
-                  mention.sentiment === 'positive' ? 'bg-green-500' :
-                  mention.sentiment === 'negative' ? 'bg-red-500' :
-                  'bg-yellow-500'
+                <div className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                  mention.sentiment === 'positive' ? 'bg-emerald-500' :
+                  mention.sentiment === 'negative' ? 'bg-rose-500' :
+                  'bg-amber-500'
                 }`} />
                 <span className="text-xs text-gray-500 capitalize">
                   {mention.sentiment} Mention
@@ -220,4 +256,4 @@ export const DigitalFootprintTab: FC = () => {
       </div>
     </div>
   );
-}; 
+};

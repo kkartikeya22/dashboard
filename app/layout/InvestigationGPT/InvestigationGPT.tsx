@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
 import { useWorkspace } from "@/app/layout/Workspace/WorkspaceContext"
 import { Artifact } from "@/app/layout/Artifact/Artifact"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const sampleQuestions = [
   "What are the recent high-risk transactions?",
@@ -19,7 +25,7 @@ const sampleQuestions = [
 ]
 
 export function InvestigationGPT() {
-  const { setArtifact, artifact } = useWorkspace()
+  const { setArtifact } = useWorkspace()
   const [message, setMessage] = React.useState("")
   const [messages, setMessages] = React.useState<Array<{ text: string; isUser: boolean }>>([])
   const [isLoading, setIsLoading] = React.useState(false)
@@ -38,13 +44,21 @@ export function InvestigationGPT() {
     const chatId = `chat-${Date.now()}`
     const chatTitle = `Chat: ${message.slice(0, 30)}${message.length > 30 ? '...' : ''}`
     
-    const newArtifact: Artifact = {
+    const newArtifact = {
       id: chatId,
-      title: chatTitle,
-      currentUrl: `/chat/${chatId}`,
+      type: 'text' as const,
+      data: {
+        title: chatTitle,
+        messages: newMessages.slice(0, -1)
+      },
+      metadata: {
+        title: chatTitle,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
       renderArtifact: () => (
         <InvestigationGPTChat 
-          messages={newMessages.slice(0, -1)} // Remove loading message from regular messages
+          messages={newMessages.slice(0, -1)}
           isLoading={true}
         />
       ),
@@ -55,13 +69,21 @@ export function InvestigationGPT() {
     // Simulate API call
     setTimeout(() => {
       const aiResponse = { text: "This is a simulated AI response.", isUser: false }
-      const finalMessages = [...newMessages.slice(0, -1), aiResponse] // Remove loading message
+      const finalMessages = [...newMessages.slice(0, -1), aiResponse]
       setMessages(finalMessages)
       setIsLoading(false)
       
       // Update artifact with new message
       const updatedArtifact = {
         ...newArtifact,
+        data: {
+          ...newArtifact.data,
+          messages: finalMessages
+        },
+        metadata: {
+          ...newArtifact.metadata,
+          updatedAt: new Date()
+        },
         renderArtifact: () => (
           <InvestigationGPTChat 
             messages={finalMessages}
@@ -79,28 +101,68 @@ export function InvestigationGPT() {
   }
 
   return (
-    <div className={cn("flex-shrink-0 bg-white rounded-lg p-2", "h-auto")}>
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <div className="flex-1 flex items-center gap-2">
-          <InvestigationGPTSuggestions 
-            questions={sampleQuestions}
-            onQuestionClick={setMessage}
-          />
-          <InvestigationGPTInput 
-            message={message} 
-            setMessage={setMessage} 
-          />
-          <Button 
-            onClick={handleButtonClick}
-            type="button"
-            size="icon" 
-            className="h-8 w-8"
-          >
-            <Send className="h-3.5 w-3.5" />
-            <span className="sr-only">Send message</span>
-          </Button>
-        </div>
-      </form>
-    </div>
+    <TooltipProvider>
+      <div className={cn(
+        "flex-shrink-0 rounded-lg p-2 h-auto",
+        "bg-gradient-to-br from-soothing-blue via-soothing-indigo to-soothing-purple",
+        "shadow-lg shadow-primary/10",
+        "border border-border/50",
+        "backdrop-blur-sm"
+      )}>
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <div className="flex-1 flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <InvestigationGPTSuggestions 
+                    suggestions={sampleQuestions}
+                    onSuggestionClick={setMessage}
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Click to use a sample question</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex-1">
+                  <InvestigationGPTInput 
+                    message={message} 
+                    setMessage={setMessage} 
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Type your investigation query here</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={handleButtonClick}
+                  type="button"
+                  size="icon" 
+                  className={cn(
+                    "h-8 w-8",
+                    "bg-primary/90 hover:bg-primary",
+                    "shadow-md shadow-primary/20",
+                    "transition-all duration-200"
+                  )}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span className="sr-only">Send message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Send your query</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </form>
+      </div>
+    </TooltipProvider>
   )
 }

@@ -3,6 +3,21 @@ import { Workspace } from '@/app/layout/Workspace/Workspace';
 import { BusinessProfileTab } from './MerchantProfileBusinessTab';
 import { VerificationTab } from './MerchantProfileVerificationTab';
 import { DocumentsTab } from './MerchantProfileDocumentsTab';
+import { styled } from '@mui/material/styles';
+
+// Styled components for tabs
+const StyledTab = styled('div')(({ theme }) => ({
+  padding: '16px 24px',
+  borderRadius: '8px',
+  transition: 'all 0.3s ease',
+  cursor: 'pointer',
+  backgroundColor: theme.palette.background.paper,
+  '&:hover': {
+    backgroundColor: theme.palette.primary.light,
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+  },
+}));
 
 // Mock data - in real app this would come from an API
 export const merchantData = {
@@ -169,21 +184,36 @@ const MerchantProfile: FC = () => {
     {
       id: 'basic',
       label: 'Business Profile',
-      content: <BusinessProfileTab />
+      content: <BusinessProfileTab />,
+      color: '#4CAF50' // Green for business profile
     },
     {
       id: 'verification',
       label: 'Verification Status',
-      content: <VerificationTab />
+      content: <VerificationTab />,
+      color: '#2196F3' // Blue for verification
     },
     {
       id: 'documents',
       label: 'Documents',
-      content: <DocumentsTab />
+      content: <DocumentsTab />,
+      color: '#FF9800' // Orange for documents
     },
   ];
 
-  return <Workspace tabs={tabs} />;
+  return (
+    <Workspace 
+      tabs={tabs}
+      TabComponent={StyledTab}
+      containerStyle={{
+        background: 'linear-gradient(145deg, #f5f7fa 0%, #e8edf2 100%)',
+        padding: '24px',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        transition: 'all 0.3s ease'
+      }}
+    />
+  );
 };
 
 export default MerchantProfile;

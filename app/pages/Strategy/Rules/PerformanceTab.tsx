@@ -2,11 +2,12 @@ import { FC, useState, useMemo } from 'react';
 import { CustomCard } from '@/components/custom/CustomCard';
 import { useWorkspace } from '@/app/layout/Workspace/WorkspaceContext';
 import { CustomSelect } from '@/components/custom/CustomSelect';
-import { Calendar, BarChart2 } from 'lucide-react';
+import { Calendar, BarChart2, TrendingUp, AlertTriangle } from 'lucide-react';
 import { PerformanceTableArtifact } from './PerformanceTableArtifact';
 import { RulePerformance, Rule } from './RulesPage';
 import { ruleCategories, someRules } from './ConditionsTab';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 type RuleCategory = typeof ruleCategories[number];
 type ViewPeriod = 'weekly' | 'monthly';
@@ -53,13 +54,14 @@ export const PerformanceTab: FC = () => {
 
   return (
     <div className="w-full max-w-full overflow-hidden">
-      <div className="space-y-4">
-        <div className="flex flex-wrap gap-4 items-center">
+      <div className="space-y-6">
+        <div className="flex flex-wrap gap-4 items-center p-4 bg-gray-50/50 rounded-lg transition-all duration-300 hover:bg-gray-100/50">
           <CustomSelect
             value={selectedCategory}
             onValueChange={(value) => setSelectedCategory(value as RuleCategory)}
             options={ruleCategories}
             size="sm"
+            className="border-indigo-100 hover:border-indigo-300 transition-colors duration-200"
           />
           <CustomSelect
             value={viewPeriod}
@@ -69,6 +71,7 @@ export const PerformanceTab: FC = () => {
               { label: 'Weekly View', value: 'weekly' }
             ]}
             size="sm"
+            className="border-indigo-100 hover:border-indigo-300 transition-colors duration-200"
           />
           <CustomSelect
             value={metricType}
@@ -78,33 +81,57 @@ export const PerformanceTab: FC = () => {
               { label: 'Fraud Rate', value: 'fraudRate' }
             ]}
             size="sm"
+            className="border-indigo-100 hover:border-indigo-300 transition-colors duration-200"
           />
-          <Button onClick={handleShowPerformance}>
+          <Button 
+            onClick={handleShowPerformance}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-200 hover:shadow-lg"
+          >
             Show Performance
           </Button>
         </div>
         
         <div className="overflow-x-auto">
           <div className="space-y-4 p-4">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Performance Analysis</h2>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
+                <h2 className="text-xl font-semibold text-indigo-900">Performance Analysis</h2>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-emerald-600">
+                    <TrendingUp className="w-5 h-5" />
+                    <span>Positive Trend</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <AlertTriangle className="w-5 h-5" />
+                    <span>3 Alerts</span>
+                  </div>
+                </div>
               </div>
 
               <CustomCard 
-                className="p-4 cursor-pointer hover:bg-gray-50"
+                className={cn(
+                  "p-6 cursor-pointer transition-all duration-300",
+                  "hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/50",
+                  "hover:shadow-lg hover:scale-[1.01]",
+                  "border border-indigo-100/50"
+                )}
                 onClick={handleShowPerformance}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <BarChart2 className="w-5 h-5 text-blue-500" />
-                    <span>View Performance Analysis</span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <BarChart2 className="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <span className="text-lg font-medium text-gray-800">View Performance Analysis</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center gap-3 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
+                    <Calendar className="w-4 h-4 text-indigo-500" />
                     <span>Last 3 months</span>
                   </div>
                 </div>
+                <p className="text-gray-600 ml-11">
+                  Analyze rule performance metrics, trends, and insights across different time periods
+                </p>
               </CustomCard>
             </div>
           </div>

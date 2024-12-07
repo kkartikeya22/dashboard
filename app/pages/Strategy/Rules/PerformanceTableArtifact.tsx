@@ -38,8 +38,8 @@ export const PerformanceTableArtifact: FC<PerformanceTableArtifactProps> = ({
     const maxValue = getMaxValue();
     const intensity = Math.max(0.1, value / maxValue);
     return metricType === 'triggers' 
-      ? `rgba(59, 130, 246, ${intensity})` 
-      : `rgba(239, 68, 68, ${intensity})`;
+      ? `rgba(56, 189, 248, ${intensity})` // Lighter blue for triggers
+      : `rgba(244, 63, 94, ${intensity})`; // Rose red for fraud rate
   };
 
   const formatValue = (value: number) => {
@@ -57,20 +57,20 @@ export const PerformanceTableArtifact: FC<PerformanceTableArtifactProps> = ({
 
   return (
     <div className="space-y-4 w-full">
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-xl font-semibold text-gray-800 transition-colors duration-200">
         Rule Performance - {metricType === 'triggers' ? 'Trigger Count' : 'Fraud Rate'}
       </h2>
       
-      <CustomCard className="w-full">
+      <CustomCard className="w-full shadow-lg transition-shadow duration-300 hover:shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50">
-                <th className="sticky left-0 bg-gray-50 px-4 py-2 text-left text-sm font-medium text-gray-500 z-10">
+                <th className="sticky left-0 bg-gray-50 px-4 py-3 text-left text-sm font-medium text-gray-600 z-10 border-b border-gray-200">
                   Rule Name
                 </th>
                 {periods.map(period => (
-                  <th key={period} className="px-4 py-2 text-left text-sm font-medium text-gray-500 whitespace-nowrap">
+                  <th key={period} className="px-4 py-3 text-left text-sm font-medium text-gray-600 whitespace-nowrap border-b border-gray-200">
                     {formatPeriod(period)}
                   </th>
                 ))}
@@ -78,9 +78,19 @@ export const PerformanceTableArtifact: FC<PerformanceTableArtifactProps> = ({
             </thead>
             <tbody className="divide-y divide-gray-200">
               {data.map(rule => (
-                <tr key={rule.ruleId}>
-                  <td className="sticky left-0 bg-white px-4 py-2 text-sm font-mono z-10 truncate">
-                    {rule.ruleId}
+                <tr 
+                  key={rule.ruleId}
+                  className="transition-colors duration-150 hover:bg-gray-50"
+                >
+                  <td className="sticky left-0 bg-white px-4 py-3 text-sm font-mono z-10 truncate group">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                        {rule.ruleId}
+                      </span>
+                      <span className="text-gray-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {rule.category}
+                      </span>
+                    </div>
                   </td>
                   {periods.map(period => {
                     const value = metricType === 'triggers' 
@@ -89,8 +99,11 @@ export const PerformanceTableArtifact: FC<PerformanceTableArtifactProps> = ({
                     return (
                       <td 
                         key={period}
-                        className="px-4 py-2 text-sm whitespace-nowrap"
-                        style={{ backgroundColor: getBackgroundColor(value) }}
+                        className="px-4 py-3 text-sm whitespace-nowrap transition-all duration-200 hover:scale-105"
+                        style={{ 
+                          backgroundColor: getBackgroundColor(value),
+                          color: value / getMaxValue() > 0.5 ? 'white' : 'black'
+                        }}
                       >
                         {formatValue(value)}
                       </td>
